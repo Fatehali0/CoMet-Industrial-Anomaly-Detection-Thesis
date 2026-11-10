@@ -1,0 +1,380 @@
+% TO DO:
+% 1) Check all the %TOEDIT lines in this file and in frontespizio.tex
+
+
+
+\documentclass[12pt,openany,oneside]{book} 
+% Use options 'twoside,openright' if the number of pages is high.
+% Use option 'oneside,openany' if the number of pages is low and you want to print it single-sided.
+
+\usepackage{geometry}
+% Adjust page margins to center content on the page
+\geometry{
+  left=4cm,
+  right=4cm,
+  top=4cm,
+  bottom=4cm,
+  bindingoffset=0cm,
+}
+\usepackage{cite}
+
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{url}
+
+\usepackage{multirow}
+
+% You may want to define some useful keywords that you are going to use several times in the manuscript and are subject to modifications.
+\usepackage{xspace}
+\newcommand{\dataname}{XXX\xspace}   %% Acronym of the dataset
+\newcommand{\methname}{XXX\xspace}   %% Acronym of the method
+
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{c.f}\onedot} \def\Cf{\emph{C.f}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\etal{\emph{et al}\onedot}
+\makeatother
+
+\usepackage{xcolor}
+\newcommand{\outline}[1]{\textcolor{blue}{Outline: #1}}
+\newcommand{\my}[1]{\textcolor{red}{[CV: #1]}}  %\TOEDIT adjust this command to use your name and initials
+
+\usepackage{array,booktabs}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+
+\usepackage{graphicx}
+\usepackage{float}
+
+\begin{document}
+
+\frontmatter
+
+\include{frontespizio}
+
+% You can put acknowledgment here (optional)
+
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Industrial anomaly detection is widely used in automated quality inspection to identify defective products without requiring extensive manual intervention. Although many existing approaches are described as unsupervised, they typically assume that the training data contain only normal samples. This assumption is often unrealistic in industrial environments, where contaminated training data may include hidden anomalies that negatively affect model performance.
+
+This thesis investigates the Confident Meta-Learning (CoMet) framework for robust unsupervised anomaly detection on real-world industrial data. CoMet combines confidence learning and meta-learning to reduce the influence of unreliable training samples and improve the robustness of model optimization.
+
+A comprehensive experimental study was conducted on the MVTec AD 2 dataset using the original CoMet framework and several ablation settings, including the removal of confidence learning, meta-learning, model confidence, and data confidence. The different configurations were evaluated using Image AUROC, Pixel AUROC, and Per-Region Overlap (PRO), together with a qualitative analysis of anomaly localization results.
+
+The experimental results provide insights into the contribution of the individual components of the CoMet framework and their impact on anomaly detection accuracy, localization performance, and model robustness. The findings contribute to a better understanding of confidence-based meta-learning for industrial anomaly detection under realistic training conditions.
+
+\tableofcontents
+
+\mainmatter
+
+
+
+\chapter{Introduction}
+
+\section{Background}
+
+Industrial quality inspection is an essential part of modern manufacturing, ensuring that products meet quality standards before reaching customers. Traditionally, inspection has been performed manually by human operators, making the process time-consuming, labor-intensive, and prone to human error. With the rapid growth of industrial automation, computer vision and deep learning have become increasingly important for developing reliable and efficient automated inspection systems.
+Anomaly detection has emerged as a promising solution for industrial inspection because it learns the characteristics of normal products and identifies defective samples as deviations from the learned normality. Unlike supervised methods, which require a large number of annotated defective samples, unsupervised anomaly detection relies primarily on normal training data, making it particularly suitable for industrial applications where defective samples are scarce or difficult to annotate.
+Although recent anomaly detection methods have achieved remarkable performance on public benchmark datasets, many of them assume that the training data contain only normal samples. In real manufacturing environments, however, training datasets may include hidden anomalies or noisy samples, reducing the robustness of the learned models. This limitation motivated Confident Meta-Learning (CoMet), which reduces the influence of unreliable samples in uncurated training data \cite{aqeel2025comet}.
+
+\section{Motivation}
+
+Recent advances in deep learning have significantly improved the performance of industrial anomaly detection systems. These methods are commonly described as unsupervised because they do not require annotated anomalous samples during training. Instead, they learn the characteristics of normal data and identify anomalies as deviations from the learned distribution.
+Despite their success, most existing approaches assume that the training dataset contains only normal samples. In real industrial environments, however, collecting perfectly clean datasets is difficult and often requires expensive manual inspection. As a result, hidden anomalies or noisy samples may be present in the training data, reducing the robustness and reliability of anomaly detection models.
+To address this limitation, CoMet combines Soft Confident Learning with meta-learning to estimate sample reliability and stabilize optimization \cite{aqeel2025comet}. Motivated by this challenge, this thesis investigates the framework experimentally to clarify the contribution of its individual components.
+
+
+\section{Problem statement }
+
+
+Most existing unsupervised anomaly detection methods assume that the training data consist exclusively of normal samples. While this assumption simplifies the learning process, it is often unrealistic in real-world industrial environments, where hidden anomalies, noisy observations, or mislabeled samples may be present in the training data. Such contamination can degrade the learned representation of normality and reduce the accuracy and robustness of anomaly detection models.
+
+The CoMet framework addresses this problem by incorporating confidence learning and meta-learning into training. Through data-confidence and model-confidence estimates, CoMet downweights unreliable samples and improves robustness \cite{aqeel2025comet}. This thesis therefore examines the contribution of each component through controlled ablations.
+
+Therefore, this thesis focuses on an experimental study of the CoMet framework by evaluating the impact of confidence learning, meta-learning, model confidence, and data confidence through a series of ablation experiments. The objective is to better understand how these components affect anomaly detection accuracy, localization performance, and robustness in industrial anomaly detection.
+
+
+\section{Research Objectives}
+
+The primary objective of this thesis is to investigate the Confident Meta-Learning (CoMet) framework for robust unsupervised anomaly detection on real-world industrial data. The study aims to provide a comprehensive experimental analysis of the framework and to better understand the contribution of its individual components to anomaly detection performance under contaminated training conditions.
+
+To achieve this objective, the following research goals are pursued:
+
+\begin{itemize}
+    \item To study and understand the architecture, workflow, and training procedure of the original CoMet framework.
+    
+    \item To implement and evaluate the CoMet framework on the MVTec AD 2 dataset using the original experimental pipeline.
+    
+    \item To investigate the individual contributions of confidence learning, meta-learning, model confidence, and data confidence through controlled ablation experiments.
+    
+    \item To compare the different CoMet configurations using quantitative evaluation metrics, including Image AUROC, Pixel AUROC, and Per-Region Overlap (PRO).
+    
+    \item To perform a qualitative analysis of anomaly localization results in order to identify common failure modes, localization behaviour, and the strengths and limitations of the different configurations.
+    
+    \item To provide a comprehensive experimental evaluation that improves the understanding of confidence-based meta-learning for industrial anomaly detection under realistic training conditions.
+
+
+\end{itemize}
+\section{Research Contributions}
+
+The main contributions of this thesis are summarized as follows:
+
+\begin{itemize}
+    \item A comprehensive study of the Confident Meta-Learning (CoMet) framework for robust unsupervised anomaly detection on real-world industrial data, with particular emphasis on understanding its confidence learning and meta-learning mechanisms.
+
+    \item An implementation and experimental evaluation of the CoMet framework on the MVTec AD 2 dataset, following the original training pipeline and evaluation methodology.
+
+    \item A systematic ablation study investigating the individual contributions of confidence learning, meta-learning, model confidence, and data confidence to anomaly detection and localization performance.
+
+    \item A quantitative comparison of different CoMet configurations using Image AUROC, Pixel AUROC, and Per-Region Overlap (PRO) to evaluate both image-level detection and pixel-level localization performance.
+
+    \item A qualitative analysis of anomaly localization results to examine the behavior of different CoMet configurations, identify common failure modes, and discuss their strengths and limitations across multiple industrial object categories.
+
+    \item A comprehensive experimental analysis that provides insights into the role of confidence-based learning strategies in improving the robustness of unsupervised anomaly detection under realistic industrial conditions.
+
+\end{itemize}
+
+\section{Thesis Organization}
+
+This thesis is organized into five chapters. Chapter~2 reviews the theoretical background and related work on industrial anomaly detection, with particular focus on the CoMet framework. Chapter~3 describes the methodology, including the implementation, experimental setup, datasets, evaluation metrics, and ablation settings. Chapter~4 presents and discusses the experimental results obtained from both quantitative and qualitative analyses. Finally, Chapter~5 summarizes the main findings, discusses the limitations of this work, and outlines directions for future research.
+\chapter{Background and Related Work}
+\label{chap:relatedwork}
+\section{Industrial Anomaly Detection}
+
+Industrial anomaly detection is a fundamental task in automated visual inspection, aiming to identify defective products during the manufacturing process. Automated inspection systems improve production efficiency, reduce inspection costs, and ensure consistent product quality by detecting defects before products reach customers. With the rapid advancement of deep learning, industrial anomaly detection has become an active research area in computer vision, enabling reliable and efficient quality inspection across various manufacturing domains \cite{bergmann2019mvtec,liu2024survey}.
+
+Unlike conventional image classification, anomaly detection focuses on learning the characteristics of normal samples and identifying defective products as deviations from the learned representation of normality. This learning paradigm is particularly suitable for industrial applications because defective samples are typically rare, diverse, and expensive to annotate. Consequently, many anomaly detection methods are trained exclusively on normal images while treating anomalous samples as unknown during training \cite{bergmann2019mvtec,liu2024survey}.
+The original MVTec AD dataset established a widely used benchmark with more than 5,000 high-resolution images across fifteen object and texture categories and pixel-level annotations \cite{bergmann2019mvtec}. MVTec AD 2 extends this benchmark with eight challenging industrial scenarios and more than 8,000 high-resolution images, including test conditions with illumination shifts \cite{hecklerkram2026mvtecad2}. Most existing methods assume anomaly-free training data, which motivates robust learning frameworks such as CoMet \cite{liu2024survey,aqeel2025comet}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 2.1 – MVTec AD2 Dataset
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{image.png}
+    \caption{Representative normal and anomalous samples from selected categories of the MVTec AD 2 dataset used in this thesis. Images reproduced from the dataset of Heckler-Kram et al. \cite{hecklerkram2026mvtecad2}.}
+    \label{fig:mvtecad2_examples}
+\end{figure}
+
+
+
+
+
+\section{Learning Paradigms for Anomaly Detection}
+
+Machine learning approaches for anomaly detection can generally be categorized into supervised, semi-supervised, and unsupervised paradigms. These approaches differ in the amount of labeled data available during training and the assumptions made about the training dataset. In industrial inspection, the availability of anomalous samples is often limited because defects occur infrequently and exhibit significant variability. Consequently, selecting an appropriate learning paradigm is essential for developing accurate and robust anomaly detection systems \cite{liu2024survey,bergmann2019mvtec}.
+\subsection{Supervised Learning}
+
+Supervised anomaly detection methods are trained using labeled normal and anomalous samples. The task is typically formulated as an image classification or segmentation problem, where the model learns to distinguish defective products from normal ones. When a sufficiently large and representative labeled dataset is available, supervised approaches can achieve excellent detection performance.
+
+However, in industrial environments, collecting and accurately annotating defective samples is expensive and often impractical because anomalies are rare and may exhibit many different appearances. As a result, supervised methods generally suffer from limited scalability and poor generalization to previously unseen defects, restricting their applicability in real-world manufacturing scenarios \cite{liu2024survey}.
+\subsection{Semi-Supervised Learning}
+
+Semi-supervised anomaly detection assumes that the training data consist primarily of normal samples, while anomalous samples are either unavailable or only sparsely represented. During training, the model learns the distribution of normal data and detects anomalies as deviations from this learned representation. This learning paradigm significantly reduces the dependence on large annotated anomaly datasets while maintaining competitive detection performance.
+
+Compared with supervised approaches, semi-supervised methods are more practical for industrial inspection because defective samples are often scarce and difficult to collect. Nevertheless, their performance may still be affected when the training data contain hidden anomalies or noisy samples, which violate the assumption that the training set is entirely normal \cite{liu2024survey,bergmann2019mvtec}.
+\subsection{Unsupervised Learning}
+
+Unsupervised anomaly detection aims to identify anomalous samples without requiring any labeled data during training. Instead of learning explicit class boundaries, these methods model the intrinsic characteristics of normal data and identify anomalies based on deviations from the learned feature distribution. This paradigm is particularly attractive for industrial inspection, where defective products are rare, diverse, and costly to annotate \cite{bergmann2019mvtec,liu2024survey}.
+
+Recent deep learning-based methods leverage pretrained feature extractors, reconstruction networks, memory banks, and representation learning. Representative approaches include PaDiM, PatchCore, FastFlow, and SimpleNet, each of which models normal data differently \cite{defard2021padim,roth2022patchcore,yu2021fastflow,liu2023simplenet}.
+
+Despite their success, most existing methods assume that the training data consist exclusively of normal samples. In real manufacturing environments, however, this assumption is often unrealistic because hidden anomalies or contaminated samples may exist within the training set. Such contamination can degrade the learned representation of normality and reduce the robustness of anomaly detection models. This limitation has motivated the development of more robust frameworks, including the Confident Meta-Learning (CoMet) approach investigated in this thesis \cite{aqeel2025comet}.
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 2.2 - Learning Paradigms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figimag2.2.png}
+    \caption{Comparison of three learning paradigms for industrial anomaly detection. Diagram created by the author based on the taxonomy discussed by Liu et al. \cite{liu2024survey}.}
+    \label{fig:learning_paradigms}
+\end{figure}
+
+Figure~\ref{fig:learning_paradigms} illustrates the three principal learning paradigms employed in anomaly detection. Supervised learning achieves high accuracy when a sufficiently large amount of labeled normal and anomalous data is available. Semi-supervised learning reduces the labeling effort by training only on labeled normal samples. In industrial inspection, however, anomalous samples are typically rare, diverse, and expensive to annotate. Consequently, most recent industrial anomaly detection approaches adopt the unsupervised learning paradigm, where models learn the distribution of defect-free samples and identify anomalies as deviations from normal patterns.
+
+
+
+
+
+\section{Deep Learning-Based Industrial Anomaly Detection}
+
+Recent advances in deep learning have significantly improved the performance of industrial anomaly detection systems. Unlike traditional handcrafted feature-based approaches, deep learning methods automatically learn discriminative visual representations from image data, enabling more accurate detection and localization of anomalies. Existing approaches can be broadly categorized into reconstruction-based, feature embedding-based, memory bank-based, and teacher--student methods, each employing different strategies to model the distribution of normal samples and identify anomalous regions \cite{liu2024survey}.
+\subsection{Reconstruction-Based Methods}
+
+Reconstruction-based methods are among the earliest deep learning approaches for industrial anomaly detection. These methods train a neural network, typically an autoencoder or generative model, using only normal images. During inference, anomalous regions cannot be reconstructed accurately because they differ from the learned distribution of normal data. Consequently, the reconstruction error is used as an anomaly score \cite{liu2024survey}.
+
+CutPaste introduces a self-supervised representation-learning strategy based on synthetic local irregularities generated by cutting and pasting image patches \cite{li2021cutpaste}. Reconstruction-based approaches can nevertheless struggle with complex textures or subtle defects, leading to inaccurate localization in challenging scenarios \cite{liu2024survey}.
+\subsection{Feature Embedding-Based Methods}
+Feature embedding-based methods detect anomalies by learning representative feature embeddings of normal samples instead of reconstructing the input images. These approaches typically employ convolutional neural networks pre-trained on large-scale datasets such as ImageNet to extract high-level semantic features. During inference, anomalies are identified by measuring the deviation of test features from the learned distribution of normal features. Compared with reconstruction-based approaches, feature embedding methods generally achieve higher detection accuracy while preserving rich semantic information \cite{liu2024survey}.
+
+Several representative methods have been proposed in this category. PaDiM models the distribution of patch-level features using multivariate Gaussian distributions and detects anomalies through the Mahalanobis distance between normal and test feature embeddings \cite{defard2021padim}. SPADE performs anomaly detection by retrieving similar normal features from the training set and comparing them with test samples, while DifferNet employs normalizing flows to estimate the probability density of normal feature representations \cite{rudolph2021differnet}. These methods have demonstrated strong performance on benchmark datasets such as MVTec AD. However, they generally assume that the training dataset contains only normal samples, making them vulnerable to contaminated training data and limiting their robustness in practical industrial environments \cite{aqeel2025comet}.
+
+\subsection{Memory Bank-Based Methods}
+
+Memory bank-based methods detect anomalies by storing representative feature embeddings of normal training samples and comparing them with the features extracted from test images during inference. Instead of learning an explicit probability distribution, these methods rely on nearest-neighbor retrieval in the feature space, where larger distances indicate a higher likelihood of anomalies. This strategy has demonstrated excellent performance in industrial anomaly detection by effectively preserving the diversity of normal feature representations \cite{roth2022patchcore,liu2024survey}.
+
+PatchCore is one of the most influential memory bank-based approaches for industrial anomaly detection. It employs a pretrained convolutional neural network to extract patch-level features and applies coreset subsampling to construct a compact yet representative memory bank. During inference, anomaly scores are computed using the nearest-neighbor distance between test features and the stored normal features, enabling accurate image-level detection and pixel-level localization \cite{roth2022patchcore}. Although PatchCore achieves state-of-the-art performance on benchmark datasets such as MVTec AD, it assumes that the training dataset contains only normal samples. Consequently, the presence of anomalous or contaminated samples in the memory bank may negatively influence the learned feature representation and reduce detection robustness, motivating the development of more robust learning frameworks such as CoMet \cite{aqeel2025comet}.
+
+\subsection{Teacher--Student Methods}
+
+Teacher--student methods have emerged as an effective paradigm for industrial anomaly detection by transferring knowledge from a pretrained teacher network to a student network. The teacher network, whose parameters remain fixed during training, extracts robust feature representations of normal samples. The student network is then trained to reproduce these representations. During inference, discrepancies between the teacher and student feature embeddings indicate potential anomalies, enabling accurate anomaly detection and localization \cite{batzner2024efficientad,liu2024survey}.
+
+Several approaches have successfully adopted this strategy. EfficientAD employs a lightweight teacher--student architecture to achieve high detection accuracy while maintaining real-time inference speed, making it suitable for industrial applications \cite{batzner2024efficientad}. SimpleNet adopts a different strategy by combining pretrained feature extraction with a lightweight feature adaptation network and a discriminator trained on synthetic anomalous features. This design enables efficient anomaly detection while reducing computational complexity and achieving competitive performance on standard benchmark datasets \cite{liu2023simplenet}.
+
+Despite their effectiveness, teacher--student methods generally assume that the training dataset consists entirely of normal samples. When contaminated or anomalous samples are present during training, the student network may inadvertently learn abnormal feature representations, reducing detection performance and model robustness. Addressing this limitation is one of the primary motivations behind the Confident Meta-Learning (CoMet) framework investigated in this thesis \cite{aqeel2025comet}.
+
+\section{Confident Meta-Learning (CoMet)}
+
+Confident Meta-Learning (CoMet) is a recently proposed training framework designed to address one of the major limitations of existing industrial anomaly detection methods: the assumption that all training samples are normal. In real manufacturing environments, training datasets may contain hidden anomalies or noisy samples that cannot always be identified through manual inspection. Such contaminated data can negatively affect the learned representation of normality and reduce the robustness of anomaly detection models \cite{aqeel2025comet}.
+
+\subsection{Motivation}
+
+Most existing anomaly detection methods, including reconstruction-based, feature embedding-based, memory bank-based, and teacher--student approaches, rely on carefully curated training datasets containing only normal samples. Although this assumption simplifies the training process, it is often unrealistic in industrial scenarios where defective products may inadvertently be included in the training data. Consequently, these methods become sensitive to contaminated datasets and may incorrectly learn anomalous patterns as normal, leading to degraded detection performance.
+
+To overcome this limitation, Aqeel et al. proposed the Confident Meta-Learning (CoMet) framework, which enables anomaly detection models to learn directly from uncurated datasets containing both nominal and anomalous samples. Instead of relying on manual data filtering, CoMet estimates the reliability of training samples and reduces the influence of ambiguous or unreliable data during optimization, improving the robustness of anomaly detection models under realistic industrial conditions \cite{aqeel2025comet}.
+
+\subsection{Overview of CoMet}
+
+CoMet is a model-agnostic training framework that enhances existing anomaly detection methods by integrating Soft Confident Learning and Model-Agnostic Meta-Learning (MAML). Instead of assuming that all training samples are normal, CoMet estimates the confidence of individual samples and reduces the influence of unreliable or potentially anomalous data during training. In addition, the meta-learning strategy improves model generalization by optimizing the learning process across different subsets of the training data, resulting in more robust anomaly detection models \cite{aqeel2025comet}.
+
+Unlike conventional anomaly detection methods, CoMet can be integrated with different deep learning backbones without modifying their underlying architectures. The original study demonstrated the effectiveness of the framework using multiple anomaly detection models and benchmark datasets. In this thesis, the CoMet framework is experimentally investigated on the MVTec AD2 dataset through a comprehensive ablation study to analyze the contribution of its individual components, including Soft Confident Learning, Meta-Learning, data confidence, and model confidence \cite{aqeel2025comet}.
+\section{Chapter Summary}
+This chapter reviewed the fundamental concepts of industrial anomaly detection and the major learning paradigms adopted in the literature. Existing deep learning-based approaches, including reconstruction-based, feature embedding-based, memory bank-based, and teacher--student methods, were discussed together with their advantages and limitations. The review highlighted that most state-of-the-art methods assume anomaly-free training data, limiting their applicability in real industrial environments. Finally, the Confident Meta-Learning (CoMet) framework was introduced as a robust solution to this limitation, providing the theoretical foundation for the methodology presented in the next chapter.
+
+\chapter{Methodology}
+\label{chap:method}
+\markboth{METHOD}{METHOD}
+
+\section{Overview of the Proposed Framework}
+
+This chapter presents the proposed methodology adopted to implement and evaluate the Confident Meta-Learning (CoMet) framework for industrial anomaly detection. The objective is to learn robust feature representations from industrial images while reducing the influence of hidden anomalous samples that may be present in the training data. Unlike conventional anomaly detection methods that assume perfectly clean training datasets, CoMet incorporates confidence-aware learning and meta-learning to improve robustness and generalization.
+
+The overall workflow of the proposed framework is illustrated in Figure~\ref{fig:comet_framework}. The pipeline begins by preprocessing the input images from the selected eight categories of the MVTec AD2 dataset. The preprocessed images are then passed through a pretrained WideResNet-50 backbone, where feature maps from intermediate layers are extracted to generate discriminative patch-level feature embeddings.
+
+The extracted embeddings are projected into a latent feature space and processed using the Soft Confident Learning module, which combines Data Confidence and Model Confidence to estimate the reliability of each training sample. These confidence weights are subsequently used during the meta-learning optimization process to reduce the impact of contaminated samples and improve feature learning.
+
+Finally, the optimized feature representations are passed to an MLP discriminator that produces patch-level anomaly scores. These scores are aggregated to obtain image-level anomaly predictions and are further upsampled to generate pixel-level anomaly segmentation maps for defect localization. The proposed framework is evaluated on the selected MVTec AD2 categories using Image AUROC, Pixel AUROC, and PRO metrics, and its performance is compared with the PatchCore baseline.
+
+
+
+\begin{figure}[H]
+    \centering
+  \includegraphics[width=1.1\textwidth]{image 3.1.png}
+    \caption{Overall workflow of the CoMet-based anomaly-detection framework implemented in this thesis. Diagram created by the author based on Aqeel et al. \cite{aqeel2025comet}.}
+    \label{fig:comet_framework}
+\end{figure}
+
+
+
+
+
+
+\section{Image Preprocessing}
+
+Image preprocessing is an essential step in the proposed anomaly detection framework, ensuring that all input images are transformed into a consistent format before feature extraction. The preprocessing pipeline prepares the selected images from the MVTec AD2 dataset for efficient processing by the pretrained WideResNet-50 backbone while preserving the visual characteristics required for anomaly detection.
+
+The proposed framework utilizes eight categories from the MVTec AD2 dataset: \textit{Can, Fabric, Fruit Jelly, Metal Sheet, Rice, Vial, Wallplug,} and \textit{Walnuts}. Each category contains normal training images and both normal and anomalous test images. During training, only normal images are used to learn the representation of defect-free products, whereas the test set contains both normal and defective samples for performance evaluation.
+
+Each input image is first resized to the required input resolution of the feature extraction network. The resized images are subsequently normalized using the ImageNet mean and standard deviation to match the distribution of the pretrained WideResNet-50 model. Finally, the normalized images are converted into tensor representations and organized into training and testing data loaders for efficient batch processing.
+
+These preprocessing operations reduce unnecessary variations caused by differences in image size and intensity while maintaining the structural information required for feature extraction. The resulting tensors are then forwarded to the WideResNet-50 backbone, where hierarchical visual features are extracted for subsequent anomaly detection \cite{aqeel2025comet}.
+
+\section{WideResNet-50 Feature Extraction}
+
+After preprocessing, the input images are forwarded to a pretrained WideResNet-50 backbone for feature extraction. Instead of training a feature extractor from scratch, the framework uses the pretrained network to obtain transferable visual representations \cite{zagoruyko2016wideresnet,aqeel2025comet}.
+
+The implementation extracts feature maps from the intermediate \textit{Layer 2} and \textit{Layer 3} of the WideResNet-50 backbone, as illustrated in Figure~\ref{fig:feature_extraction}. These layers provide complementary information, where Layer 2 captures detailed local texture information while Layer 3 learns higher-level semantic representations. Combining features from both layers enables the framework to effectively represent both fine-grained surface defects and larger structural anomalies. The implementation configures \texttt{wide\_resnet50\_2} as the backbone and extracts features from \texttt{layer2} and \texttt{layer3}.
+
+The extracted feature maps are subsequently transformed into patch-level embeddings through the feature aggregation module. These embeddings preserve the spatial characteristics of the original image while providing a compact representation suitable for anomaly detection. The resulting feature representations are then forwarded to the confidence-aware learning stage, where the reliability of each training sample is estimated before model optimization.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig3.2.png}
+    \caption{Feature extraction using the pretrained WideResNet-50 backbone. Feature maps from intermediate layers are combined to produce patch-level embeddings. Diagram created by the author based on the implementation used in this thesis and the WideResNet architecture \cite{zagoruyko2016wideresnet}.}
+    \label{fig:feature_extraction}
+\end{figure}
+
+
+\section{Soft Confident Learning}
+
+The extracted patch-level embeddings are subsequently processed using the Soft Confident Learning (SCL) module. This module estimates the reliability of each training sample and reduces the influence of potentially contaminated samples during optimization by assigning an adaptive confidence weight \cite{aqeel2025comet}.
+
+As illustrated in Figure~\ref{fig:soft_confident_learning}, the confidence estimation process combines two complementary components: \textit{Data Confidence} and \textit{Model Confidence}. Data Confidence evaluates the reliability of individual training samples according to their feature representations, while Model Confidence measures the stability of the learning process by analysing the relationship between training and validation losses. The combination of these two confidence measures produces a confidence weight for every training sample.
+
+Samples with higher confidence receive larger weights during optimization and therefore contribute more significantly to parameter updates. Conversely, samples assigned lower confidence weights have a reduced influence on the optimization process, limiting the negative impact of hidden anomalies that may exist within the training dataset. This adaptive weighting strategy enables the model to learn more robust feature representations without requiring manual filtering of contaminated training samples.
+
+The confidence weights generated by the Soft Confident Learning module are subsequently incorporated into the meta-learning optimization stage, where they guide the parameter update process and improve the generalization capability of the anomaly detection model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig 3.3.png}
+    \caption{Soft Confident Learning framework. Data Confidence and Model Confidence are combined to estimate sample reliability and produce adaptive weights. Diagram created by the author based on CoMet \cite{aqeel2025comet}.}
+    \label{fig:soft_confident_learning}
+\end{figure}
+
+\section{Meta-Learning Optimization}
+
+Following the estimation of confidence weights, the proposed framework employs a meta-learning optimization strategy to improve the robustness and generalization capability of the anomaly detection model. Instead of updating the model parameters solely based on the training objective, the optimization process considers both training and validation information to guide parameter updates. This enables the model to learn feature representations that generalize better to unseen industrial samples.
+
+The optimization process consists of two stages: an inner optimization loop and an outer optimization loop. During the inner loop, the model parameters are updated using the confidence-weighted training loss obtained from the Soft Confident Learning module. The updated parameters are subsequently evaluated in the outer loop using a validation objective to assess their generalization performance \cite{finn2017maml,aqeel2025comet}.
+
+The meta-learning framework further estimates the covariance between the training and validation losses to measure the stability of the optimization process. Large covariance values indicate unstable parameter updates and increase the risk of overfitting, whereas smaller covariance values correspond to more reliable optimization. This information is incorporated into the optimization procedure to encourage stable parameter updates and improve the robustness of the learned feature representations.
+
+By integrating confidence-aware weighting with meta-learning optimization, the proposed framework reduces the influence of unreliable training samples while simultaneously improving the model's ability to generalize to previously unseen data. The optimized feature representations are subsequently forwarded to the discriminator network for anomaly score prediction and defect localization.
+
+\section{MLP Discriminator and Anomaly Prediction}
+
+After the feature representations have been optimized through Soft Confident Learning and meta-learning, they are forwarded to a Multi-Layer Perceptron (MLP) discriminator. The discriminator assigns an anomaly score to each extracted image patch \cite{aqeel2025comet}.
+
+As illustrated in Figure~\ref{fig:discriminator_pipeline}, the optimized patch embeddings are first processed by the MLP discriminator, which produces anomaly scores corresponding to individual patches. These patch-level scores represent the likelihood that a particular region of the image contains an anomaly. Higher scores indicate a greater probability of abnormality, whereas lower scores correspond to normal regions.
+
+The generated patch-level anomaly scores are subsequently aggregated to obtain an image-level anomaly score. At the same time, the patch scores are rescaled and upsampled to the original image resolution to generate dense anomaly maps. A smoothing operation is finally applied to improve the visual consistency of the predicted segmentation maps and facilitate accurate defect localization. This process enables the framework to perform both image-level anomaly classification and pixel-level anomaly localization.
+
+The predicted anomaly maps and image-level scores are evaluated using Image AUROC, Pixel AUROC, and Per-Region Overlap (PRO) metrics, providing a comprehensive assessment of the anomaly detection and localization performance of the proposed framework.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{3.5.png}
+    \caption{MLP discriminator and anomaly-prediction pipeline. Optimized patch embeddings produce patch-level anomaly scores that are aggregated into image-level predictions and upsampled into pixel-level anomaly maps. Diagram created by the author based on the CoMet implementation \cite{aqeel2025comet}.}
+    \label{fig:discriminator_pipeline}
+\end{figure}
+
+\section{Experimental Configuration}
+
+The proposed framework was evaluated using the MVTec AD2 dataset, considering eight industrial categories: \textit{Can, Fabric, Fruit Jelly, Metal Sheet, Rice, Vial, Wallplug,} and \textit{Walnuts}. Each category contains normal training images and a test set consisting of both normal and anomalous samples with pixel-level ground-truth annotations. During training, only the normal images were used for learning, while the complete test set was employed for performance evaluation.
+
+The proposed framework was implemented in Python using the PyTorch deep learning library. All experiments were performed on a workstation equipped with an NVIDIA GeForce RTX 4060 GPU. A pretrained WideResNet-50 backbone was adopted as the feature extractor, and intermediate feature maps from Layer 2 and Layer 3 were utilized to generate patch-level feature embeddings for anomaly detection. The implementation follows the CoMet framework while employing the experimental settings adopted in this thesis.
+
+Image preprocessing consisted of resizing the input images to the required resolution, followed by normalization using the standard ImageNet mean and standard deviation. The preprocessed images were subsequently converted into tensor representations and organized into training and testing data loaders for efficient batch processing.
+
+The framework was assessed using Image Area Under the Receiver Operating Characteristic Curve (Image AUROC), Pixel AUROC, and Per-Region Overlap (PRO), following established industrial anomaly-detection evaluation practice \cite{bergmann2019mvtec,hecklerkram2026mvtecad2}. Image AUROC measures image-level discrimination, Pixel AUROC evaluates pixel-level localization, and PRO measures region-level overlap between predicted anomaly regions and ground-truth masks.
+
+To validate the effectiveness of the proposed methodology, the experimental results obtained using the complete CoMet framework were compared with the PatchCore baseline \cite{roth2022patchcore}. Furthermore, additional experiments were conducted to analyse the contribution of the Data Confidence and Model Confidence components within the proposed confidence-aware learning framework. The experimental results and comparative analysis are presented in Chapter 4.
+
+\bibliographystyle{splncs04}
+\bibliography{references_corrected}
+
+\end{document}
