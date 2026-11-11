@@ -1,0 +1,3 @@
+Dataset,image_auroc,Pixel_auroc,Pro
+mvtec_can,0.4679,0.8370,0.6257
+Mean,0.4679,0.8370,0.6257
